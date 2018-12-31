@@ -33,12 +33,15 @@ export default class Print {
     await this.writeAssignee();
     await this.writeQr();
     tmp.file({ prefix: "metatrack_", postfix: ".pdf" }, (err: any, path: string, fd: number, clean: () => void) => {
-      this.doc.pipe(fs.createWriteStream(path));
-      this.doc.end();
-      const lp = spawn("lp", [path]);
-      lp.on('close', code => {
-        clean();
+      const stream = fs.createWriteStream(path);
+      stream.on("close", () => {
+        const lp = spawn("lp", [path]);
+        lp.on('close', code => {
+          clean();
+        });
       });
+      this.doc.pipe(stream);
+      this.doc.end();
     });
   }
 
