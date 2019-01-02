@@ -58,6 +58,10 @@ export default class Print {
 
   private writeEstimate() {
     const estimate = this.getEstimate();
+    if (!estimate) {
+      return;
+    }
+
     const points = estimate.minutes / 60;
     this.doc.fontSize(20);
     this.doc.text(points.toString(), 190, 15);
@@ -65,6 +69,10 @@ export default class Print {
 
   private async writeAssignee() {
     const assignee = this.getAssignee();
+    if (!assignee) {
+      return;
+    }
+
     const url = `${config.get("youtrack:url")}${assignee.avatarUrl}`;
     const res = await fetch(url);
     const buffer = await res.arrayBuffer();
