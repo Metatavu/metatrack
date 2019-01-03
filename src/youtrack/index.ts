@@ -1,4 +1,4 @@
-import fetch, { Headers } from "node-fetch";
+import fetch, { Headers, BodyInit } from "node-fetch";
 import { URL, URLSearchParams } from "url";
 
 export default class YouTrack {
@@ -32,19 +32,23 @@ export default class YouTrack {
     return url.toString();
   }
 
-  doRequest(path: string, params?: string | URLSearchParams | { [key: string]: string | string[]; } | Iterable<[string, string]> | [string, string][]) {
-    return fetch(this.buildUrl(path, params), { headers: this.buildHeaders() }).then(res => res.json());
+  doRequest(method: string, path: string, params?: string | URLSearchParams | { [key: string]: string | string[]; } | Iterable<[string, string]> | [string, string][], body?: BodyInit) {
+    return fetch(this.buildUrl(path, params), {method: method, body: body, headers: this.buildHeaders() }).then(res => res.json());
+  }
+
+  updateIssue(issue: any) {
+    return this.doRequest("POST", `/youtrack/api/issues/${issue.id}`, {}, JSON.stringify(issue));
   }
 
   listIssues(fields: string[]) {
-    return this.doRequest("/youtrack/api/issues", {fields: fields});
+    return this.doRequest("GET", "/youtrack/api/issues", {fields: fields});
   }
 
   findIssue(id: string, fields: string[]) {
-    return this.doRequest(`/youtrack/api/issues/${id}`, {fields: fields});
+    return this.doRequest("GET", `/youtrack/api/issues/${id}`, {fields: fields});
   }
 
   listBoards(fields: string[]) {
-    return this.doRequest("/youtrack/api/agiles", {fields: fields});
+    return this.doRequest("GET", "/youtrack/api/agiles", {fields: fields});
   }
 }
