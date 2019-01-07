@@ -69,13 +69,14 @@ export default class Routes {
         return;
       }
       const data = await this.youTrack.findIssue(id, ["id", "fields(id,projectCustomField(field(name)),value(id,name,bundle(name,values(id,name))))"]);
-      const stateIndex = data.fields.findIndex((field: any) => field.projectCustomField.field.name === "State");
-      if (stateIndex < 0) {
+      const stateField = data.fields.find((field: any) => field.projectCustomField.field.name === "State");
+      if (!stateField) {
         res.status(400).send("Missing state");
         return
       }
 
-      data.fields[stateIndex].value.id = stateId;
+      stateField.value.id = stateId;
+      data.fields = [stateField];
       res.send(await this.youTrack.updateIssue(data));
     } catch(err) {
       this.handleError(res, err);
